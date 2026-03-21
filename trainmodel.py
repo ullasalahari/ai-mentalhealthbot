@@ -1,24 +1,51 @@
+# ==============================
+# TRAIN MODEL + SAVE FILES
+# ==============================
+
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 import pickle
 
+print("🔄 Loading dataset...")
+
 # Load dataset
-data = pd.read_csv("mental healthbot dataset.csv")
+df = pd.read_csv("dataset.csv")
 
-X = data["text"]
-y = data["emotion"]
+print("Columns in dataset:", df.columns)
 
-# Convert text to numbers
-vectorizer = CountVectorizer(stop_words="english")
+# ------------------------------
+# FIX COLUMN NAMES
+# ------------------------------
+df = df.dropna()
+df['text'] = df['text'].astype(str)
+
+# ⚠️ IMPORTANT (your column name)
+y = df['sentiments']   # <-- change if needed
+X = df['text']
+
+print("✅ Data cleaned")
+
+# ------------------------------
+# VECTORIZATION
+# ------------------------------
+vectorizer = TfidfVectorizer()
 X_vec = vectorizer.fit_transform(X)
 
-# Train model
-model = MultinomialNB()
+print("✅ Vectorization done")
+
+# ------------------------------
+# TRAIN MODEL
+# ------------------------------
+model = LogisticRegression()
 model.fit(X_vec, y)
 
-# Save model & vectorizer
+print("✅ Model trained")
+
+# ------------------------------
+# SAVE FILES
+# ------------------------------
 pickle.dump(model, open("model.pkl", "wb"))
 pickle.dump(vectorizer, open("vectorizer.pkl", "wb"))
 
-print("✅ Model trained successfully")
+print("🎉 model.pkl and vectorizer.pkl created successfully!")
